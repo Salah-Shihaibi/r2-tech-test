@@ -48,3 +48,47 @@ exports.readRecipe = ({ id }) => {
     });
   });
 };
+
+exports.writeRecipe = (newRecipe) => {
+  const { imageUrl, instructions, ingredients } = newRecipe;
+  return new Promise((resolve, reject) => {
+    if (
+      !typeof imageUrl === "string" ||
+      !typeof instructions === "string" ||
+      Array.isArray(ingredients) === false
+    ) {
+      reject({
+        status: 400,
+        msg: "Invalid recipe post",
+      });
+    }
+
+    fs.readFile("./data/data.json", "utf8", (err, data) => {
+      if (err) {
+        reject({
+          status: 500,
+          msg: err,
+        });
+      } else {
+        const recipeArray = JSON.parse(data);
+        newRecipe.id =
+          Math.max(...recipeArray.map((recipe) => Number(recipe.id.slice(7)))) +
+          1;
+        fs.writeFile(
+          "./data/data.json",
+          JSON.stringify([...recipeArray, newRecipe]),
+          (err) => {
+            if (err) {
+              reject({
+                status: 500,
+                msg: err,
+              });
+            } else {
+              resolve(newRecipe);
+            }
+          }
+        );
+      }
+    });
+  });
+};

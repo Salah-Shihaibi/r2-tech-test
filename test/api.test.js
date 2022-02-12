@@ -1,7 +1,9 @@
 const supertest = require("supertest");
 const server = require("../server");
-
 const request = supertest(server);
+const { seedDB } = require("../seed");
+
+//beforeEach(() => seedDB());
 
 test("/api", async () => {
   const { body } = await request.get("/api").expect(200);
@@ -78,9 +80,8 @@ describe("GET /api/recipes/:id", () => {
   });
 });
 
-describe("POST /api/recipes/:id", () => {
+describe("POST /api/recipes", () => {
   const newRecipe = {
-    id: `recipe-${(Math.random() * Math.random()).toString(36)}`,
     imageUrl: "http://www.images.com/21",
     instructions: "spin it, twist it, pull it, flick it... bop it!",
     ingredients: [
@@ -95,7 +96,8 @@ describe("POST /api/recipes/:id", () => {
     const {
       body: { recipe },
     } = await request.post("/api/recipes").send(newRecipe).expect(201);
-    expect(recipe).toEqual(newRecipe);
+    expect(recipe).toMatchObject(newRecipe);
+    expect(recipe.id === undefined).toBe(false);
   });
 
   test("status:400, respond with error message when parameters are missing from body content", async () => {
