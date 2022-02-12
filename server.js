@@ -1,7 +1,7 @@
 const server = require("express")();
 const apiRouter = require("./routes/api");
 
-const { handleErrors } = require("./errors/index");
+const { handleErrors, handleServerErrors } = require("./errors/index");
 
 //server.use(express.json());
 
@@ -15,5 +15,6 @@ server.get("/*", (req, res, next) => {
 });
 
 server.use(handleErrors);
+server.use(handleServerErrors);
 
 module.exports = server;

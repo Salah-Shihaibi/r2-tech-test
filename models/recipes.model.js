@@ -23,3 +23,28 @@ exports.readRecipes = ({ exclude_ingredients = false }) => {
     });
   });
 };
+
+exports.readRecipe = ({ id }) => {
+  return new Promise((resolve, reject) => {
+    fs.readFile("./data/data.json", "utf8", (err, data) => {
+      if (err) {
+        reject({
+          status: 500,
+          msg: err,
+        });
+      } else {
+        const requiredRecipe = JSON.parse(data).find(
+          (recipe) => recipe.id === id
+        );
+        if (requiredRecipe === undefined) {
+          reject({
+            status: 404,
+            msg: `No recipe found with id : ${id}`,
+          });
+        } else {
+          resolve(requiredRecipe);
+        }
+      }
+    });
+  });
+};

@@ -51,7 +51,7 @@ describe("GET /api/recipes", () => {
 });
 
 describe("GET /api/recipes/:id", () => {
-  test("status:200, respond with an recipe object", () => {
+  test("status:200, respond with a recipe object", async () => {
     const {
       body: { recipe },
     } = await request.get("/api/recipes/recipe-31").expect(200);
@@ -70,11 +70,43 @@ describe("GET /api/recipes/:id", () => {
     });
   });
 
-  test("status:404, respond with error message", () => {
+  test("status:404, respond with error message", async () => {
     const {
       body: { msg },
-    } = await request.get("/api/recipes/recipe-100").expect(200);
-    const { msg } = body;
+    } = await request.get("/api/recipes/recipe-100").expect(404);
     expect(msg).toBe("No recipe found with id : recipe-100");
+  });
+});
+
+describe("POST /api/recipes/:id", () => {
+  const newRecipe = {
+    id: `recipe-${(Math.random() * Math.random()).toString(36)}`,
+    imageUrl: "http://www.images.com/21",
+    instructions: "spin it, twist it, pull it, flick it... bop it!",
+    ingredients: [
+      { name: "strawberries", grams: 187 },
+      { name: "kale", grams: 41 },
+      { name: "apple juice", grams: 64 },
+      { name: "coffee", grams: 146 },
+      { name: "cocoa nibs", grams: 154 },
+    ],
+  };
+  test("status:201, responds with the new recipe added to the database", async () => {
+    const {
+      body: { recipe },
+    } = await request.post("/api/recipes").send(newRecipe).expect(201);
+    expect(recipe).toEqual(newRecipe);
+  });
+
+  test("status:400, respond with error message when parameters are missing from body content", async () => {
+    const {
+      body: { msg },
+    } = await request
+      .post("/api/recipes")
+      .send({
+        imageUrl: "http://www.images.com/21",
+      })
+      .expect(400);
+    expect(msg).toBe("Invalid recipe post");
   });
 });
